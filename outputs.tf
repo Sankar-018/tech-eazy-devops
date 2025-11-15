@@ -1,13 +1,15 @@
-#############################################
-# OUTPUTS
-#############################################
-
-output "instance_public_ip" {
-  description = "Public IP address of the EC2 instance"
-  value       = aws_instance.app_server.public_ip
+output "alb_dns" {
+  value = aws_lb.app_lb.dns_name
 }
 
-output "instance_public_dns" {
-  description = "Public DNS name of the EC2 instance"
-  value       = aws_instance.app_server.public_dns
+output "instance_ips" {
+  value = [for i in aws_instance.app_server : i.public_ip]
+}
+
+output "sns_topic_arn" {
+  value = aws_sns_topic.alerts.arn
+}
+
+output "s3_bucket_name" {
+  value = aws_s3_bucket.app_builds.bucket
 }
