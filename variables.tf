@@ -29,3 +29,9 @@ variable "s3_object_key" {
 variable "local_app_artifact" {
   default = ""
 }
+
+variable "alert_email" {
+  description = "Email address to receive SNS alerts"
+  type        = string
+  default     = "sankarm0018@gmail.com"
+}
