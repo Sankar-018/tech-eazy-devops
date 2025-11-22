@@ -33,5 +33,5 @@ variable "local_app_artifact" {
 variable "alert_email" {
   description = "Email address to receive SNS alerts"
   type        = string
-  default     = "sankarm0018@gmail.com"
+  default     = "sankar01820@gmail.com"
 }

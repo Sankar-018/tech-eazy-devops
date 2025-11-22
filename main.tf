@@ -202,7 +202,7 @@ resource "aws_lb_target_group" "app_tg" {
   vpc_id   = data.aws_vpc.default.id
 
   health_check {
-    path = "/"
+    path = "/hello"
     matcher = "200-399"
     interval = 30
     timeout = 5
