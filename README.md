@@ -1,80 +1,127 @@
-# Tech-Eazy DevOps Repo
+# 🚀 Tech-Eazy DevOps Project — PR3: Auto Scaling, Monitoring & Alerts
 
-## Overview
-This project provisions a highly available application deployment on AWS using Terraform.  
-It includes:
-- Two EC2 instances
-- Application Load Balancer (ALB)
-- S3 bucket for application artifact storage
-- CloudWatch Alarms for instance health
-- SNS Topic for failure alerts
-- IAM Roles for EC2 → S3 access
-- Automated app deployment using user_data
+This project extends **PR2 (High Availability)** by adding **Auto Scaling**, **Memory-Based Scaling**, **CPU-Based Scaling**, and **CloudWatch Monitoring** using AWS + Terraform.  
+It simulates unpredictable workloads and responds by automatically scaling EC2 instances.
 
 ---
 
-## Architecture
-1. **S3 Bucket**  
-   Stores the built Spring MVC JAR file (`app.jar`).  
-   Bucket Name: `techeazy-devops-app-builds`
+# 🎯 Project Goals (PR3)
 
-2. **EC2 Instances (2x)**  
-   - Launch template uses `user_data.tpl`
-   - Downloads JAR from S3
-   - Runs app on port `80`
+### ✅ Implement Auto Scaling  
+- Scale **out** when:
+  - **CPU > 30%**
+  - **Memory > 50%**
+- Scale **in** when:
+  - **CPU < 30%**
+  - **Memory < 30%**
 
-3. **ALB**
-   - Round-robin load balancing
-   - Health checks on `/`
+### ✅ Add CloudWatch Monitoring  
+- Track **CPU usage**
+- Track **memory usage (CloudWatch Agent)**
+- Monitor **in-service instance count**
+- Detect **EC2 failure or launch failure**
 
-4. **CloudWatch Alarms**
-   - Monitors `StatusCheckFailed_Instance`
-   - Alerts via SNS if instance becomes `Unhealthy`
-
-5. **SNS**
-   - Sends email/SMS notifications
-
----
-
-## Files Included
-
-### **main.tf**
-Contains:
-- Providers  
-- S3 bucket  
-- IAM roles & policies  
-- EC2 instances  
-- ALB + target group + listener  
-- CloudWatch alarms  
-- SNS topic  
-
-### **variables.tf**
-Defines parameters:
-- AWS region  
-- Instance type  
-- Key pair  
-- S3 bucket name  
-- Build artifact name  
-- Alert email  
-- Number of instances  
-
-### **user_data.tpl**
-Executed at instance boot:
-- Installs AWS CLI  
-- Downloads JAR from S3  
-- Starts Spring MVC app  
-
-### **outputs.tf**
-Outputs:
-- Public ALB DNS  
-- EC2 public IPs  
-- SNS topic ARN  
+### ✅ Add Alerting via SNS  
+You receive an **email alert** when:
+- ASG instance count drops unexpectedly  
+- CPU/Memory crosses threshold  
+- EC2 instance becomes unhealthy  
 
 ---
 
-## Deployment Steps
 
-```bash
+---
+
+# 📁 Folder Structure
+
+```
+tech-eazy-devops/
+├── main.tf
+├── alb.tf
+├── autoscaling.tf
+├── memory_scaling.tf
+├── launch_template.tf
+├── iam.tf
+├── s3.tf
+├── ami.tf
+├── outputs.tf
+├── variables.tf
+├── variables.tfvars
+├── sns_cloudwatch.tf
+├── scripts/
+│   └── load_generator.sh
+├── policies/
+│   ├── cw-agent-permissions.json
+│   └── monitoring.json
+└── user_data.tpl
+```
+
+---
+
+# 🚀 Deployment Steps
+
+### 1️⃣ Initialize Terraform  
+```
 terraform init
-terraform plan
-terraform apply -auto-approve
+```
+
+### 2️⃣ Validate configuration  
+```
+terraform validate
+```
+
+### 3️⃣ Deploy with variables file  
+```
+terraform apply -var-file=variables.tfvars
+```
+
+---
+
+# 📊 Testing Auto Scaling
+
+Use load generator:
+
+```
+./scripts/load_generator.sh <alb-dns>
+```
+
+This continuously hits `/hello` endpoint and increases CPU & memory usage.
+
+---
+
+# 🔍 How Memory Metrics Work  
+- CloudWatch Agent installed via `user_data.tpl`
+- Permissions granted via `cw-agent-permissions.json`
+- Alarms use `mem_used_percent` metric
+
+---
+
+# 📨 Alerts
+
+SNS delivers emails for:
+- High CPU
+- High Memory
+- Low in-service instances
+- Instance failure
+
+---
+
+# 🧹 Cleanup
+
+```
+terraform destroy -var-file=variables.tfvars
+```
+
+---
+
+# ✔️ Notes for Reviewers  
+- S3 bucket stores **app.jar**
+- Launch template pulls JAR from S3
+- Auto Scaling Group maintains state
+- Alarm thresholds intentionally low for testing
+
+---
+
+# 👨‍💻 Author  
+Sankar  
+Tech-Eazy DevOps Intern (PR3)
