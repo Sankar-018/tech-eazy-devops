@@ -1,0 +1,27 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CWReadWrite",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:PutMetricData",
+        "cloudwatch:GetMetricStatistics",
+        "cloudwatch:ListMetrics",
+        "cloudwatch:GetMetricData"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "SNSReadWrite",
+      "Effect": "Allow",
+      "Action": [
+        "sns:Publish",
+        "sns:Subscribe",
+        "sns:ListTopics",
+        "sns:ListSubscriptionsByTopic"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
