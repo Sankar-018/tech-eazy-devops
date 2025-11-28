@@ -121,7 +121,3 @@ terraform destroy -var-file=variables.tfvars
 - Alarm thresholds intentionally low for testing
 
 ---
-
-# 👨‍💻 Author  
-Sankar  
-Tech-Eazy DevOps Intern (PR3)
