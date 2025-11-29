@@ -15,3 +15,6 @@ alert_email = "sankar01820@gmail.com"
 asg_min_size         = 1
 asg_desired_capacity = 2
 asg_max_size         = 10
+#asg_min_size         = 1
+#asg_desired_capacity = 1
+#asg_max_size         = 1
