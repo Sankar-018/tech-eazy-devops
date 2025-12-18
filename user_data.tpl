@@ -2,10 +2,10 @@
 set -eux
 
 #############################################
-# Update & install dependencies
+# Update system & install dependencies
 #############################################
 apt-get update -y
-apt-get install -y openjdk-21-jdk curl unzip wget
+apt-get install -y openjdk-21-jdk ruby wget curl unzip
 
 #############################################
 # Install AWS CLI v2
@@ -15,13 +15,24 @@ unzip /tmp/awscliv2.zip -d /tmp
 /tmp/aws/install -i /usr/local/aws -b /usr/local/bin
 
 #############################################
-# Install CloudWatch Agent (for memory metrics)
+# Install CodeDeploy Agent (Ubuntu)
+#############################################
+cd /home/ubuntu
+wget https://aws-codedeploy-ap-south-1.s3.ap-south-1.amazonaws.com/latest/install
+chmod +x install
+./install auto
+
+systemctl enable codedeploy-agent
+systemctl start codedeploy-agent
+
+#############################################
+# Install CloudWatch Agent
 #############################################
 wget https://amazoncloudwatch-agent.s3.amazonaws.com/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
 dpkg -i amazon-cloudwatch-agent.deb
 
 #############################################
-# Create CloudWatch Agent config (CPU/MEM)
+# CloudWatch Agent config
 #############################################
 mkdir -p /opt/aws/amazon-cloudwatch-agent/bin
 
@@ -30,9 +41,7 @@ cat >/opt/aws/amazon-cloudwatch-agent/bin/config.json <<'EOF'
   "metrics": {
     "metrics_collected": {
       "mem": {
-        "measurement": [
-          "mem_used_percent"
-        ],
+        "measurement": ["mem_used_percent"],
         "metrics_collection_interval": 60
       }
     },
@@ -44,9 +53,6 @@ cat >/opt/aws/amazon-cloudwatch-agent/bin/config.json <<'EOF'
 }
 EOF
 
-#############################################
-# Start CloudWatch Agent
-#############################################
 /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
   -a fetch-config \
   -m ec2 \
@@ -54,24 +60,6 @@ EOF
   -s
 
 #############################################
-# Create app folder
+# Create app directory (CodeDeploy will use this)
 #############################################
 mkdir -p /opt/app
-
-#############################################
-# Download JAR from S3
-#############################################
-aws s3 cp "s3://${bucket}/${key}" /opt/app/app.jar
-
-# Verify jar download
-ls -lh /opt/app
-
-#############################################
-# Run the application on port 80
-#############################################
-nohup java -jar /opt/app/app.jar --server.port=80 > /var/log/app.log 2>&1 &
-
-#############################################
-# Optional auto-shutdown
-#############################################
-shutdown -h +${stop_after_minutes}
